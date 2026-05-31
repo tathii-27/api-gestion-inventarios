@@ -1,99 +1,45 @@
-const Estado = require('../models/estado.model');
+/**
+ * Estado Controller
+ * Maneja las peticiones de estados de equipos
+ */
 
-const estadoController = {
-  async getAll(req, res) {
-    try {
-      const estados = await Estado.findAll();
-      res.json({
-        success: true,
-        data: estados
-      });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({
-        success: false,
-        message: 'Error al obtener los estados'
-      });
-    }
-  },
+const Estado = require('../models/Estado.model');
+const catchAsync = require('../utils/catchAsync');
+const { successResponse } = require('../utils/responseFormatter');
+const AppError = require('../utils/AppError');
 
-  async getById(req, res) {
-    try {
-      const estado = await Estado.findById(req.params.id);
-      if (!estado) {
-        return res.status(404).json({
-          success: false,
-          message: 'Estado no encontrado'
-        });
-      }
-      res.json({
-        success: true,
-        data: estado
-      });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({
-        success: false,
-        message: 'Error al obtener el estado'
-      });
-    }
-  },
+const getAllEstados = catchAsync(async (req, res) => {
+  const estados = await Estado.findAll();
+  successResponse(res, estados, 'Estados obtenidos exitosamente');
+});
 
-  async create(req, res) {
-    try {
-      const estado = await Estado.create(req.body);
-      res.status(201).json({
-        success: true,
-        message: 'Estado creado exitosamente',
-        data: estado
-      });
-    } catch (error) {
-      console.error(error);
-      if (error.code === 'ER_DUP_ENTRY') {
-        return res.status(400).json({
-          success: false,
-          message: 'El nombre del estado ya existe'
-        });
-      }
-      res.status(500).json({
-        success: false,
-        message: 'Error al crear el estado'
-      });
-    }
-  },
-
-  async update(req, res) {
-    try {
-      const estado = await Estado.update(req.params.id, req.body);
-      res.json({
-        success: true,
-        message: 'Estado actualizado exitosamente',
-        data: estado
-      });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({
-        success: false,
-        message: 'Error al actualizar el estado'
-      });
-    }
-  },
-
-  async delete(req, res) {
-    try {
-      await Estado.delete(req.params.id);
-      res.json({
-        success: true,
-        message: 'Estado eliminado exitosamente'
-      });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({
-        success: false,
-        message: 'Error al eliminar el estado'
-      });
-    }
+const getEstadoById = catchAsync(async (req, res) => {
+  const estado = await Estado.findById(req.params.id);
+  if (!estado) {
+    throw AppError.notFound('Estado no encontrado');
   }
-};
+  successResponse(res, estado, 'Estado obtenido exitosamente');
+});
 
-module.exports = estadoController;
+const createEstado = catchAsync(async (req, res) => {
+  const estado = await Estado.create(req.body);
+  successResponse(res, estado, 'Estado creado exitosamente', 201);
+});
+
+const updateEstado = catchAsync(async (req, res) => {
+  const estado = await Estado.update(req.params.id, req.body);
+  successResponse(res, estado, 'Estado actualizado exitosamente');
+});
+
+const deleteEstado = catchAsync(async (req, res) => {
+  await Estado.delete(req.params.id);
+  successResponse(res, null, 'Estado eliminado exitosamente');
+});
+
+module.exports = {
+  getAllEstados,
+  getEstadoById,
+  createEstado,
+  updateEstado,
+  deleteEstado
+};

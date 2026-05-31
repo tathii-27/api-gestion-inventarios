@@ -5,15 +5,20 @@
 
 const express = require('express');
 const marcaController = require('../controllers/marca.controller');
-const authMiddleware = require('../middleware/auth.middleware');
+const { protect } = require('../middleware/auth.middleware');
 const { authorize } = require('../middleware/role.middleware');
 const { validate } = require('../middleware/validation.middleware');
 const { ROLES } = require('../constants/roles');
 
 const router = express.Router();
 
-// Todas las rutas requieren autenticación
-router.use(authMiddleware);
+// // Todas las rutas requieren autenticación
+// router.use(protect);
+
+router.use((req, res, next) => {
+    console.log(`🔸 Ruta de marca: ${req.method} ${req.url}`);
+    next();
+});
 
 /**
  * @route GET /api/marcas

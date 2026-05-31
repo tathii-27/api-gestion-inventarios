@@ -3,26 +3,22 @@
  * Centraliza la configuración de variables de entorno con validacion
  */
 
-const dotenv = require('dotenv');
-
-// Load environment variables
-dotenv.config();
-
 // Required environment variables
 const requiredEnvVars = [
   'DB_HOST',
   'DB_USER',
-  'DB_PASSWORD',
   'DB_NAME',
   'JWT_SECRET'
 ];
 
+// NOTA: DB_PASSWORD es opcional, puede estar vacío
+
 // Validate required environment variables
-requiredEnvVars.forEach((envVar) => {
-  if (!process.env[envVar]) {
-    throw new Error(`Falta variable de entorno requerida: ${envVar}`);
-  }
-});
+const missingVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
+if (missingVars.length > 0) {
+  console.error(`❌ Faltan variables de entorno requeridas: ${missingVars.join(', ')}`);
+  console.error('Por favor, configura estas variables en el archivo .env');
+}
 
 // Export configuration object
 module.exports = {
@@ -38,7 +34,7 @@ module.exports = {
     host: process.env.DB_HOST,
     port: parseInt(process.env.DB_PORT, 10) || 3306,
     user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
+    password: process.env.DB_PASSWORD || '',
     database: process.env.DB_NAME,
     waitForConnections: true,
     connectionLimit: parseInt(process.env.DB_CONNECTION_LIMIT, 10) || 10,

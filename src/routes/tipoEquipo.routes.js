@@ -5,14 +5,19 @@
 
 const express = require('express');
 const tipoEquipoController = require('../controllers/tipoEquipo.controller');
-const authMiddleware = require('../middleware/auth.middleware');
+const { protect } = require('../middleware/auth.middleware');
 const { authorize } = require('../middleware/role.middleware');
 const { ROLES } = require('../constants/roles');
 
 const router = express.Router();
 
-// Todas las rutas requieren autenticación
-router.use(authMiddleware);
+// // Todas las rutas requieren autenticación
+// router.use(protect);
+
+router.use((req, res, next) => {
+    console.log(`🔸 Ruta de tipo de equipo: ${req.method} ${req.url}`);
+    next();
+});
 
 /**
  * @route GET /api/tipos-equipos
